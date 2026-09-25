@@ -1,0 +1,196 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "A lid held still below the release angle is cleared after this long." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "屏幕在起效角度以下保持静止超过这个时间后，效果会消失。"
+          }
+        }
+      }
+    },
+    "At and above this angle the desktop is untouched; below it the glass tilts away from a content plane pinned here." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在这个角度及以上，桌面保持原样；低于这个角度时，玻璃会从固定在此角度的内容平面上倾斜离开。"
+          }
+        }
+      }
+    },
+    "Clear after holding still" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "静止后消失"
+          }
+        }
+      }
+    },
+    "Clear and return speed" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "消失与恢复速度"
+          }
+        }
+      }
+    },
+    "How far behind real time the lid is played back. About one sensor interval (0.1 s) gives continuous motion; 0 follows each sensor update directly." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "屏幕角度回放相对实际时间的延迟。约一个传感器周期（0.1 秒）可让运动连续；设为 0 则直接跟随每次传感器更新。"
+          }
+        }
+      }
+    },
+    "Interpolation delay" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "插值延迟"
+          }
+        }
+      }
+    },
+    "Lid smoothing" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "屏幕跟随平滑"
+          }
+        }
+      }
+    },
+    "Lid speed above which the lid counts as moving, which holds off the clear." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "屏幕转动速度超过此值即视为正在移动，此时效果不会消失。"
+          }
+        }
+      }
+    },
+    "Motion threshold" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "运动阈值"
+          }
+        }
+      }
+    },
+    "Never smaller than the dead band." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不会小于噪声死区。"
+          }
+        }
+      }
+    },
+    "Noise dead band" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "噪声死区"
+          }
+        }
+      }
+    },
+    "Nothing at or above the release angle; below it the lid is glass rotating away from the desktop pinned there." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在起效角度及以上不做任何处理；低于它时，屏幕就像一块玻璃，从固定在该角度的桌面上转开。"
+          }
+        }
+      }
+    },
+    "Optical reference" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "光学参考"
+          }
+        }
+      }
+    },
+    "Raised to at least 0.6° when the sensor only reports whole degrees." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当传感器只提供整数角度时，至少提高到 0.6°。"
+          }
+        }
+      }
+    },
+    "Raised to at least 1° when the sensor only reports whole degrees." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当传感器只提供整数角度时，至少提高到 1°。"
+          }
+        }
+      }
+    },
+    "Release above" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "起效角度"
+          }
+        }
+      }
+    },
+    "Show overlay beyond" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示叠加层的偏离阈值"
+          }
+        }
+      }
+    },
+    "Spring response of the glass following the lid." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "玻璃跟随屏幕转动的弹簧响应时间。"
+          }
+        }
+      }
+    },
+    "Still tolerance" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "静止容差"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

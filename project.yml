@@ -1,0 +1,84 @@
+name: MacDuo
+options:
+  bundleIdPrefix: com.dongkunxu
+  deploymentTarget:
+    macOS: "26.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+configFiles:
+  Debug: Config/Signing.xcconfig
+  Release: Config/Signing.xcconfig
+settings:
+  base:
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    SWIFT_TREAT_WARNINGS_AS_ERRORS: YES
+    GCC_TREAT_WARNINGS_AS_ERRORS: YES
+    MACOSX_DEPLOYMENT_TARGET: "26.0"
+    # Apple silicon only; the self-test uses Float16, which Swift does not provide on x86_64 macOS.
+    ARCHS: arm64
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    DEAD_CODE_STRIPPING: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
+targets:
+  MacDuoKit:
+    type: framework
+    platform: macOS
+    sources:
+      - path: Sources/MacDuoKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dongkunxu.macduo.kit
+        GENERATE_INFOPLIST_FILE: YES
+        SKIP_INSTALL: YES
+  MacDuo:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/MacDuo
+        excludes:
+          - Info.plist
+    dependencies:
+      - target: MacDuoKit
+    info:
+      path: Sources/MacDuo/Info.plist
+      properties:
+        CFBundleDisplayName: Mac Duo
+        CFBundleLocalizations: [en, zh-Hans]
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSApplicationCategoryType: public.app-category.utilities
+        LSUIElement: true
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSHumanReadableCopyright: © 2026 Dongkun Xu. MIT License.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dongkunxu.macduo
+        PRODUCT_NAME: MacDuo
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_OBJC_BRIDGING_HEADER: Sources/MacDuo/Shaders/BridgingHeader.h
+        MTL_FAST_MATH: YES
+        MTL_TREAT_WARNINGS_AS_ERRORS: YES
+  MacDuoKitTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests/MacDuoKitTests
+    dependencies:
+      - target: MacDuoKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dongkunxu.macduo.kittests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  MacDuo:
+    build:
+      targets:
+        MacDuo: all
+        MacDuoKitTests: [test]
+    test:
+      targets:
+        - MacDuoKitTests

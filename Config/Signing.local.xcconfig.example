@@ -1,0 +1,6 @@
+// Copy to Signing.local.xcconfig and fill in your own values.
+// List the identities available on this Mac with: security find-identity -v -p codesigning
+
+CODE_SIGN_IDENTITY = Apple Development: Your Name (XXXXXXXXXX)
+DEVELOPMENT_TEAM = YOURTEAMID
+ENABLE_HARDENED_RUNTIME = YES
