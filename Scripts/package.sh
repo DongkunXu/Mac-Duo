@@ -39,9 +39,10 @@ version=$(plist_value CFBundleShortVersionString)
 
 [[ $(lipo -archs "$BUILT/Contents/MacOS/MacDuo") == arm64 ]] || fail "the executable is not arm64 only"
 missing=()
-for path in Contents/Resources/default.metallib Contents/Resources/Assets.car Contents/Resources/AppIcon.icns \
+# Not named `path`: in zsh that variable is tied to PATH.
+for entry in Contents/Resources/default.metallib Contents/Resources/Assets.car Contents/Resources/AppIcon.icns \
         Contents/Resources/zh-Hans.lproj Contents/Frameworks/MacDuoKit.framework/Versions/A/MacDuoKit; do
-    [[ -e $BUILT/$path ]] || missing+=($path)
+    [[ -e $BUILT/$entry ]] || missing+=($entry)
 done
 if (( ${#missing} )); then
     print -u2 "package: missing from the bundle: ${missing[*]}"
