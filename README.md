@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Sources/MacDuo/Assets.xcassets/AppIcon.appiconset/icon_256@2x.png" width="128" height="128" alt="Mac Duo app icon">
+</p>
+
 <p align="center"><b>English</b> | <a href="README.zh-CN.md">简体中文</a></p>
 
 # Mac Duo
@@ -58,8 +62,8 @@ Mac Duo runs in the menu bar only.
   it. The default is 95°, adjustable from 60° to 120° in 0.5° steps. A value slightly below your
   usual working angle works well.
 - **Settings → Tuning**: all parameters of the motion model and the glass effect. Changes apply
-  immediately while you move the lid. **Presets** saves and restores complete
-  sets of parameters.
+  immediately while you move the lid.
+- **Settings → Presets**: saves and restores complete sets of parameters.
 - **Pause**: press ⌃⌥⌘D anywhere.
 - **Language**: English or Simplified Chinese, following the system language by default. You can
   pick a language in Settings → Status.
