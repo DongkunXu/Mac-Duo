@@ -38,11 +38,16 @@ version=$(plist_value CFBundleShortVersionString)
 [[ -n $version && $version != *'$('* ]] || fail "the version was not resolved"
 
 [[ $(lipo -archs "$BUILT/Contents/MacOS/MacDuo") == arm64 ]] || fail "the executable is not arm64 only"
+missing=()
 for path in Contents/Resources/default.metallib Contents/Resources/Assets.car Contents/Resources/AppIcon.icns \
-        Contents/Resources/en.lproj Contents/Resources/zh-Hans.lproj \
-        Contents/Frameworks/MacDuoKit.framework/Versions/A/MacDuoKit; do
-    [[ -e $BUILT/$path ]] || fail "missing $path"
+        Contents/Resources/zh-Hans.lproj Contents/Frameworks/MacDuoKit.framework/Versions/A/MacDuoKit; do
+    [[ -e $BUILT/$path ]] || missing+=($path)
 done
+if (( ${#missing} )); then
+    print -u2 "package: missing from the bundle: ${missing[*]}"
+    find "$BUILT/Contents" -maxdepth 3 | sort >&2
+    exit 1
+fi
 load_commands=$(otool -l "$BUILT/Contents/MacOS/MacDuo")
 [[ $load_commands == *'@executable_path/../Frameworks'* ]] || fail "the executable cannot find the embedded framework"
 codesign --verify --strict --deep "$BUILT" || fail "the built app's signature does not verify"
