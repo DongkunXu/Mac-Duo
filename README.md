@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Sources/MacDuo/Assets.xcassets/AppIcon.appiconset/icon_256@2x.png" width="128" height="128" alt="Mac Duo app icon">
+</p>
+
 <p align="center"><b>English</b> | <a href="README.zh-CN.md">简体中文</a></p>
 
 # Mac Duo
@@ -10,6 +14,12 @@ working angle, the picture is sharp again.
 The app reads the MacBook's built-in lid-angle sensor and redraws the live desktop on the GPU in a
 click-through overlay. At your working angle it leaves the screen untouched.
 
+<p align="center">
+  <img src="docs/images/fold-88.png" width="49%" alt="Lid at 88°: sharp near the hinge, softer towards the top edge">
+  <img src="docs/images/fold-80.png" width="49%" alt="Lid at 80°: the same, with a stronger frost">
+</p>
+<p align="center"><sub>Illustration: the optical model applied to a sample desktop. Release angle 95°, lid at 88° (left) and 80° (right).</sub></p>
+
 ## Requirements
 
 - An Apple silicon MacBook with a lid-angle sensor. Mac Duo was developed and tested on a MacBook
@@ -19,6 +29,14 @@ click-through overlay. At your working angle it leaves the screen untouched.
   [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ## Install
+
+**Download.** Get `MacDuo-<version>-arm64.zip` from the
+[Releases](https://github.com/DongkunXu/Mac-Duo/releases) page, unzip it and move `MacDuo.app` to
+`/Applications`. The build is signed ad hoc and is not notarized, so macOS blocks the first launch.
+Allow it in System Settings → Privacy & Security → Open Anyway, or run
+`xattr -dr com.apple.quarantine /Applications/MacDuo.app`.
+
+**Build from source.**
 
 ```sh
 brew install xcodegen
@@ -58,8 +76,8 @@ Mac Duo runs in the menu bar only.
   it. The default is 95°, adjustable from 60° to 120° in 0.5° steps. A value slightly below your
   usual working angle works well.
 - **Settings → Tuning**: all parameters of the motion model and the glass effect. Changes apply
-  immediately while you move the lid. **Presets** saves and restores complete
-  sets of parameters.
+  immediately while you move the lid.
+- **Settings → Presets**: saves and restores complete sets of parameters.
 - **Pause**: press ⌃⌥⌘D anywhere.
 - **Language**: English or Simplified Chinese, following the system language by default. You can
   pick a language in Settings → Status.
@@ -124,8 +142,9 @@ build/DerivedData/Build/Products/Debug/MacDuo.app/Contents/MacOS/MacDuo --self-t
 | `Sources/MacDuoKit` | Pure Swift logic: sensor reports, motion model, power decisions, parameters, presets. |
 | `Sources/MacDuo` | The app: sensor thread, screen capture, overlay, rendering, effect shaders, UI. |
 | `Tests/MacDuoKitTests` | Tests for MacDuoKit (Swift Testing). |
-| `Scripts` | `install.sh`, and `make-icon.swift`, which draws the app icon. |
+| `Scripts` | `install.sh`, `package.sh`, which builds and checks the zip for the Releases page, and `make-icon.swift`, which draws the app icon. |
 | `Config` | Code signing settings. |
+| `.github/workflows` | Tests, builds and publishes the app on GitHub. |
 | `docs` | [Architecture](docs/ARCHITECTURE.md) and [lid sensor notes](docs/sensor.md). |
 
 UI text is kept in the String Catalogs (`Localizable.xcstrings`) of both targets. Xcode adds new

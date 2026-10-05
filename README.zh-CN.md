@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Sources/MacDuo/Assets.xcassets/AppIcon.appiconset/icon_256@2x.png" width="128" height="128" alt="Mac Duo 应用图标">
+</p>
+
 <p align="center"><a href="README.md">English</a> | <b>简体中文</b></p>
 
 # Mac Duo
@@ -6,6 +10,12 @@ Mac Duo 为 MacBook 的屏幕开合加入一段折叠过渡效果。合上屏幕
 
 App 读取 MacBook 内置的屏幕角度传感器，用 GPU 在一个可点穿的叠加层里重绘实时桌面。屏幕处在正常使用角度时，画面保持原样。
 
+<p align="center">
+  <img src="docs/images/fold-88.png" width="49%" alt="屏幕在 88°：靠近转轴清晰，越往上越模糊">
+  <img src="docs/images/fold-80.png" width="49%" alt="屏幕在 80°：同样的效果，磨砂更强">
+</p>
+<p align="center"><sub>示意图：把光学模型应用在一张示例桌面上。起效角度 95°，屏幕分别在 88°（左）和 80°（右）。</sub></p>
+
 ## 系统要求
 
 - 带屏幕角度传感器的 Apple 芯片 MacBook。开发和测试使用的是 M5 Pro 的 MacBook Pro，设置里的“状态”页会显示是否找到了传感器。
@@ -13,6 +23,10 @@ App 读取 MacBook 内置的屏幕角度传感器，用 GPU 在一个可点穿�
 - 编译需要 Xcode 26 或更高版本（含 Metal 工具链）和 [XcodeGen](https://github.com/yonaskolb/XcodeGen)。
 
 ## 安装
+
+**下载。** 在 [Releases](https://github.com/DongkunXu/Mac-Duo/releases) 页面下载 `MacDuo-<版本>-arm64.zip`，解压后把 `MacDuo.app` 移到 `/Applications`。这个版本使用临时（ad hoc）签名，没有经过公证，所以 macOS 会拦截第一次启动。在“系统设置 → 隐私与安全性”里点“仍要打开”，或在终端运行 `xattr -dr com.apple.quarantine /Applications/MacDuo.app`。
+
+**从源码编译。**
 
 ```sh
 brew install xcodegen
@@ -39,7 +53,8 @@ Mac Duo 只在菜单栏运行。
 
 - **菜单栏面板**：开关、实时屏幕角度、当前状态、起效角度滑块、预设、暂停和设置。
 - **起效角度**：低于这个角度时效果生效，达到或高于它时桌面保持原样。默认 95°，可以在 60° 到 120° 之间按 0.5° 调节。设成比平时使用角度稍低一点比较合适。
-- **设置 → 调节**：运动模型和玻璃效果的全部参数。改动立即生效，可以一边开合屏幕一边调。**预设**用来保存和恢复整套参数。
+- **设置 → 调节**：运动模型和玻璃效果的全部参数。改动立即生效，可以一边开合屏幕一边调。
+- **设置 → 预设**：保存和恢复整套参数。
 - **暂停**：在任何地方按 ⌃⌥⌘D。
 - **语言**：支持英文和简体中文，默认跟随系统语言，也可以在“设置 → 状态”里单独选择。
 
@@ -88,8 +103,9 @@ build/DerivedData/Build/Products/Debug/MacDuo.app/Contents/MacOS/MacDuo --self-t
 | `Sources/MacDuoKit` | 纯 Swift 逻辑：传感器报文、运动模型、功耗判定、参数、预设。 |
 | `Sources/MacDuo` | App：传感器线程、截屏、叠加层、渲染、效果着色器、界面。 |
 | `Tests/MacDuoKitTests` | MacDuoKit 的测试（Swift Testing）。 |
-| `Scripts` | `install.sh`，以及绘制 App 图标的 `make-icon.swift`。 |
+| `Scripts` | `install.sh`，编译并检查 Releases 页面所用 zip 的 `package.sh`，以及绘制 App 图标的 `make-icon.swift`。 |
 | `Config` | 代码签名设置。 |
+| `.github/workflows` | 在 GitHub 上测试、编译和发布 App。 |
 | `docs` | [架构说明](docs/ARCHITECTURE.md)和[传感器说明](docs/sensor.md)（英文）。 |
 
 界面文字保存在两个 target 的 String Catalog（`Localizable.xcstrings`）里，在 Xcode 中编译时会自动加入新增的文字。

@@ -1,0 +1,148 @@
+name: Build
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Publish a release with this tag, for example v0.1.0. Leave empty to only build.'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+# A newer push to the same ref makes an older run pointless.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tool versions
+        run: |
+          xcodebuild -version
+          sw_vers
+
+      # Since Xcode 26 the Metal toolchain is a separate download that the runner image may lack.
+      - name: Metal toolchain
+        run: |
+          if ! xcrun -sdk macosx metal --version >/dev/null 2>&1; then
+            xcodebuild -downloadComponent MetalToolchain
+          fi
+          xcrun -sdk macosx metal --version
+
+      - name: Install XcodeGen
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+          HOMEBREW_NO_INSTALL_CLEANUP: '1'
+        run: brew install xcodegen
+
+      - name: Tag matches the project version
+        if: (github.event_name == 'workflow_dispatch' && inputs.tag != '') || startsWith(github.ref, 'refs/tags/v')
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          project=$(sed -n 's/^ *MARKETING_VERSION: "\(.*\)"/\1/p' project.yml)
+          if [[ "$RELEASE_TAG" != v* ]]; then
+            echo "The tag $RELEASE_TAG must start with v" >&2
+            exit 1
+          fi
+          tag=${RELEASE_TAG#v}
+          if [[ "${tag%%-*}" != "$project" ]]; then
+            echo "Tag $RELEASE_TAG does not match MARKETING_VERSION $project in project.yml" >&2
+            exit 1
+          fi
+
+      - name: Unit tests
+        run: |
+          xcodegen generate --quiet
+          xcodebuild -project MacDuo.xcodeproj -scheme MacDuo -destination 'platform=macOS,arch=arm64' \
+            -derivedDataPath build/DerivedData test
+
+      - name: Package
+        run: |
+          Scripts/package.sh
+          {
+            echo '### Mac Duo build'
+            echo
+            echo '```'
+            cat build/MacDuo-*.zip.sha256
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Hosted runners may have no GPU; the result is informational and shown in the log.
+      - name: Rendering self-test
+        continue-on-error: true
+        run: |
+          system_profiler SPDisplaysDataType | head -20
+          build/DerivedData/Build/Products/Release/MacDuo.app/Contents/MacOS/MacDuo --self-test
+
+      - name: Launch smoke test
+        run: |
+          app=build/DerivedData/Build/Products/Release/MacDuo.app
+          "$app/Contents/MacOS/MacDuo" > build/smoke.log 2>&1 &
+          pid=$!
+          sleep 8
+          if kill -0 "$pid" 2>/dev/null; then
+            echo "Still running after 8 s"
+            kill "$pid"
+          else
+            wait "$pid" || true
+            echo "The app exited early:" >&2
+            cat build/smoke.log
+            exit 1
+          fi
+          cat build/smoke.log
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MacDuo
+          path: |
+            build/MacDuo-*.zip
+            build/MacDuo-*.zip.sha256
+          if-no-files-found: error
+
+  release:
+    if: (github.event_name == 'workflow_dispatch' && inputs.tag != '') || startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: MacDuo
+          path: dist
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          flags=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
+          cat > notes.md <<'EOF'
+          For Apple silicon Macs with macOS 26 or later.
+
+          1. Unzip the download and move `MacDuo.app` to `/Applications`.
+          2. The app is signed ad hoc and is not notarized, so macOS blocks the first launch. Allow it in System Settings → Privacy & Security → Open Anyway, or run `xattr -dr com.apple.quarantine /Applications/MacDuo.app` in Terminal.
+          3. Grant Screen Recording permission, then relaunch from Mac Duo's Settings → Status.
+
+          With ad hoc signing, macOS asks for the Screen Recording permission again after each update. The SHA-256 of the zip is in the `.sha256` file.
+          EOF
+          # A release made by hand in the web interface only gets the files.
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" dist/* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$RELEASE_TAG" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "Mac Duo ${RELEASE_TAG#v}" --notes-file notes.md "${flags[@]}"
+          fi
