@@ -30,6 +30,14 @@ click-through overlay. At your working angle it leaves the screen untouched.
 
 ## Install
 
+**Download.** Get `MacDuo-<version>-arm64.zip` from the
+[Releases](https://github.com/DongkunXu/Mac-Duo/releases) page, unzip it and move `MacDuo.app` to
+`/Applications`. The build is signed ad hoc and is not notarized, so macOS blocks the first launch.
+Allow it in System Settings → Privacy & Security → Open Anyway, or run
+`xattr -dr com.apple.quarantine /Applications/MacDuo.app`.
+
+**Build from source.**
+
 ```sh
 brew install xcodegen
 git clone https://github.com/DongkunXu/Mac-Duo.git
@@ -134,8 +142,9 @@ build/DerivedData/Build/Products/Debug/MacDuo.app/Contents/MacOS/MacDuo --self-t
 | `Sources/MacDuoKit` | Pure Swift logic: sensor reports, motion model, power decisions, parameters, presets. |
 | `Sources/MacDuo` | The app: sensor thread, screen capture, overlay, rendering, effect shaders, UI. |
 | `Tests/MacDuoKitTests` | Tests for MacDuoKit (Swift Testing). |
-| `Scripts` | `install.sh`, and `make-icon.swift`, which draws the app icon. |
+| `Scripts` | `install.sh`, `package.sh`, which builds and checks the zip for the Releases page, and `make-icon.swift`, which draws the app icon. |
 | `Config` | Code signing settings. |
+| `.github/workflows` | Tests, builds and publishes the app on GitHub. |
 | `docs` | [Architecture](docs/ARCHITECTURE.md) and [lid sensor notes](docs/sensor.md). |
 
 UI text is kept in the String Catalogs (`Localizable.xcstrings`) of both targets. Xcode adds new

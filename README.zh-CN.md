@@ -24,6 +24,10 @@ App 读取 MacBook 内置的屏幕角度传感器，用 GPU 在一个可点穿�
 
 ## 安装
 
+**下载。** 在 [Releases](https://github.com/DongkunXu/Mac-Duo/releases) 页面下载 `MacDuo-<版本>-arm64.zip`，解压后把 `MacDuo.app` 移到 `/Applications`。这个版本使用临时（ad hoc）签名，没有经过公证，所以 macOS 会拦截第一次启动。在“系统设置 → 隐私与安全性”里点“仍要打开”，或在终端运行 `xattr -dr com.apple.quarantine /Applications/MacDuo.app`。
+
+**从源码编译。**
+
 ```sh
 brew install xcodegen
 git clone https://github.com/DongkunXu/Mac-Duo.git
@@ -99,8 +103,9 @@ build/DerivedData/Build/Products/Debug/MacDuo.app/Contents/MacOS/MacDuo --self-t
 | `Sources/MacDuoKit` | 纯 Swift 逻辑：传感器报文、运动模型、功耗判定、参数、预设。 |
 | `Sources/MacDuo` | App：传感器线程、截屏、叠加层、渲染、效果着色器、界面。 |
 | `Tests/MacDuoKitTests` | MacDuoKit 的测试（Swift Testing）。 |
-| `Scripts` | `install.sh`，以及绘制 App 图标的 `make-icon.swift`。 |
+| `Scripts` | `install.sh`，编译并检查 Releases 页面所用 zip 的 `package.sh`，以及绘制 App 图标的 `make-icon.swift`。 |
 | `Config` | 代码签名设置。 |
+| `.github/workflows` | 在 GitHub 上测试、编译和发布 App。 |
 | `docs` | [架构说明](docs/ARCHITECTURE.md)和[传感器说明](docs/sensor.md)（英文）。 |
 
 界面文字保存在两个 target 的 String Catalog（`Localizable.xcstrings`）里，在 Xcode 中编译时会自动加入新增的文字。
