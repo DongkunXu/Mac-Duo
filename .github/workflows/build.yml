@@ -10,6 +10,11 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same ref makes an older run pointless.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: macos-26
