@@ -48,7 +48,8 @@ if (( ${#missing} )); then
     find "$BUILT/Contents" -maxdepth 3 | sort >&2
     exit 1
 fi
-load_commands=$(otool -l "$BUILT/Contents/MacOS/MacDuo")
+otool=$(xcrun --find otool 2>/dev/null) || otool=$(xcrun --find llvm-otool) || fail "otool is not available"
+load_commands=$("$otool" -l "$BUILT/Contents/MacOS/MacDuo")
 [[ $load_commands == *'@executable_path/../Frameworks'* ]] || fail "the executable cannot find the embedded framework"
 codesign --verify --strict --deep "$BUILT" || fail "the built app's signature does not verify"
 
