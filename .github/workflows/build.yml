@@ -6,6 +6,11 @@ on:
     tags: ['v*']
   pull_request:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Publish a release with this tag, for example v0.1.0. Leave empty to only build.'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -42,12 +47,18 @@ jobs:
         run: brew install xcodegen
 
       - name: Tag matches the project version
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: (github.event_name == 'workflow_dispatch' && inputs.tag != '') || startsWith(github.ref, 'refs/tags/v')
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           project=$(sed -n 's/^ *MARKETING_VERSION: "\(.*\)"/\1/p' project.yml)
-          tag=${GITHUB_REF_NAME#v}
+          if [[ "$RELEASE_TAG" != v* ]]; then
+            echo "The tag $RELEASE_TAG must start with v" >&2
+            exit 1
+          fi
+          tag=${RELEASE_TAG#v}
           if [[ "${tag%%-*}" != "$project" ]]; then
-            echo "Tag $GITHUB_REF_NAME does not match MARKETING_VERSION $project in project.yml" >&2
+            echo "Tag $RELEASE_TAG does not match MARKETING_VERSION $project in project.yml" >&2
             exit 1
           fi
 
@@ -101,7 +112,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: (github.event_name == 'workflow_dispatch' && inputs.tag != '') || startsWith(github.ref, 'refs/tags/v')
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -115,9 +126,10 @@ jobs:
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           flags=()
-          if [[ "$GITHUB_REF_NAME" == *-* ]]; then flags+=(--prerelease); fi
+          if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
           cat > notes.md <<'EOF'
           For Apple silicon Macs with macOS 26 or later.
 
@@ -127,5 +139,10 @@ jobs:
 
           With ad hoc signing, macOS asks for the Screen Recording permission again after each update. The SHA-256 of the zip is in the `.sha256` file.
           EOF
-          gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" \
-            --title "Mac Duo ${GITHUB_REF_NAME#v}" --notes-file notes.md "${flags[@]}"
+          # A release made by hand in the web interface only gets the files.
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" dist/* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$RELEASE_TAG" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "Mac Duo ${RELEASE_TAG#v}" --notes-file notes.md "${flags[@]}"
+          fi
