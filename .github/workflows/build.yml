@@ -53,7 +53,15 @@ jobs:
             -derivedDataPath build/DerivedData test
 
       - name: Package
-        run: Scripts/package.sh
+        run: |
+          Scripts/package.sh
+          {
+            echo '### Mac Duo build'
+            echo
+            echo '```'
+            cat build/MacDuo-*.zip.sha256
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # Hosted runners may have no GPU; the result is informational and shown in the log.
       - name: Rendering self-test
