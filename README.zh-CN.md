@@ -10,6 +10,12 @@ Mac Duo 为 MacBook 的屏幕开合加入一段折叠过渡效果。合上屏幕
 
 App 读取 MacBook 内置的屏幕角度传感器，用 GPU 在一个可点穿的叠加层里重绘实时桌面。屏幕处在正常使用角度时，画面保持原样。
 
+<p align="center">
+  <img src="docs/images/fold-88.png" width="49%" alt="屏幕在 88°：靠近转轴清晰，越往上越模糊">
+  <img src="docs/images/fold-80.png" width="49%" alt="屏幕在 80°：同样的效果，磨砂更强">
+</p>
+<p align="center"><sub>示意图：把光学模型应用在一张示例桌面上。起效角度 95°，屏幕分别在 88°（左）和 80°（右）。</sub></p>
+
 ## 系统要求
 
 - 带屏幕角度传感器的 Apple 芯片 MacBook。开发和测试使用的是 M5 Pro 的 MacBook Pro，设置里的“状态”页会显示是否找到了传感器。

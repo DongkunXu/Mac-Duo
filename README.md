@@ -14,6 +14,12 @@ working angle, the picture is sharp again.
 The app reads the MacBook's built-in lid-angle sensor and redraws the live desktop on the GPU in a
 click-through overlay. At your working angle it leaves the screen untouched.
 
+<p align="center">
+  <img src="docs/images/fold-88.png" width="49%" alt="Lid at 88°: sharp near the hinge, softer towards the top edge">
+  <img src="docs/images/fold-80.png" width="49%" alt="Lid at 80°: the same, with a stronger frost">
+</p>
+<p align="center"><sub>Illustration: the optical model applied to a sample desktop. Release angle 95°, lid at 88° (left) and 80° (right).</sub></p>
+
 ## Requirements
 
 - An Apple silicon MacBook with a lid-angle sensor. Mac Duo was developed and tested on a MacBook
