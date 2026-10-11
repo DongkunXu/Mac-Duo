@@ -1,16 +1,12 @@
 name: Build
 
+# Tests and packages every push. Releases are built, notarized and published locally with
+# Scripts/release.sh.
 on:
   push:
     branches: ['**']
-    tags: ['v*']
   pull_request:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Publish a release with this tag, for example v0.1.0. Leave empty to only build.'
-        required: false
-        default: ''
 
 permissions:
   contents: read
@@ -45,22 +41,6 @@ jobs:
           HOMEBREW_NO_AUTO_UPDATE: '1'
           HOMEBREW_NO_INSTALL_CLEANUP: '1'
         run: brew install xcodegen
-
-      - name: Tag matches the project version
-        if: (github.event_name == 'workflow_dispatch' && inputs.tag != '') || startsWith(github.ref, 'refs/tags/v')
-        env:
-          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
-        run: |
-          project=$(sed -n 's/^ *MARKETING_VERSION: "\(.*\)"/\1/p' project.yml)
-          if [[ "$RELEASE_TAG" != v* ]]; then
-            echo "The tag $RELEASE_TAG must start with v" >&2
-            exit 1
-          fi
-          tag=${RELEASE_TAG#v}
-          if [[ "${tag%%-*}" != "$project" ]]; then
-            echo "Tag $RELEASE_TAG does not match MARKETING_VERSION $project in project.yml" >&2
-            exit 1
-          fi
 
       - name: Unit tests
         run: |
@@ -110,39 +90,4 @@ jobs:
             build/MacDuo-*.zip
             build/MacDuo-*.zip.sha256
           if-no-files-found: error
-
-  release:
-    if: (github.event_name == 'workflow_dispatch' && inputs.tag != '') || startsWith(github.ref, 'refs/tags/v')
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: MacDuo
-          path: dist
-
-      - name: Publish the release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
-        run: |
-          flags=()
-          if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
-          cat > notes.md <<'EOF'
-          For Apple silicon Macs with macOS 26 or later.
-
-          1. Unzip the download and move `MacDuo.app` to `/Applications`.
-          2. The app is signed ad hoc and is not notarized, so macOS blocks the first launch. Allow it in System Settings → Privacy & Security → Open Anyway, or run `xattr -dr com.apple.quarantine /Applications/MacDuo.app` in Terminal.
-          3. Grant Screen Recording permission, then relaunch from Mac Duo's Settings → Status.
-
-          With ad hoc signing, macOS asks for the Screen Recording permission again after each update. The SHA-256 of the zip is in the `.sha256` file.
-          EOF
-          # A release made by hand in the web interface only gets the files.
-          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" dist/* --repo "$GITHUB_REPOSITORY" --clobber
-          else
-            gh release create "$RELEASE_TAG" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-              --title "Mac Duo ${RELEASE_TAG#v}" --notes-file notes.md "${flags[@]}"
-          fi
+          retention-days: 14
